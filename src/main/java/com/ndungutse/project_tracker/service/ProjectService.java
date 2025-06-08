@@ -1,14 +1,14 @@
 package com.ndungutse.project_tracker.service;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.stereotype.Service;
-
+import com.ndungutse.project_tracker.dto.ProjectDTO;
 import com.ndungutse.project_tracker.model.Project;
 import com.ndungutse.project_tracker.repository.ProjectRepository;
-
 import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectService {
@@ -19,45 +19,53 @@ public class ProjectService {
     }
 
     // Create
-    public Project create(Project project) {
-        return projectRepository.save(project);
+    public ProjectDTO create(ProjectDTO projectDTO) {
+        Project project = projectDTO.toEntity();
+        Project savedProject = projectRepository.save(project);
+        return ProjectDTO.fromEntity(savedProject);
     }
 
     // Read
-    public List<Project> getAll() {
-        return projectRepository.findAll();
+    public List<ProjectDTO> getAll() {
+        List<Project> projects = projectRepository.findAll();
+        return projects.stream()
+                .map(ProjectDTO::fromEntity)
+                .collect(Collectors.toList());
     }
 
-    public Optional<Project> getById(Long id) {
-        return projectRepository.findById(id);
+    public Optional<ProjectDTO> getById(Long id) {
+        Optional<Project> projectOpt = projectRepository.findById(id);
+        return projectOpt.map(ProjectDTO::fromEntity);
     }
 
     @Transactional
-    public Optional<Project> update(
+    public Optional<ProjectDTO> update(
             Long id,
-            Project updatedProject) {
+            ProjectDTO updatedProjectDTO
+    ) {
         Optional<Project> existingProject = projectRepository.findById(id);
         if (existingProject.isPresent()) {
             Project project = existingProject.get();
 
             // Only update fields that are not null to leverage @DynamicUpdate
-            if (updatedProject.getName() != null) {
-                project.setName(updatedProject.getName());
+            if (updatedProjectDTO.getName() != null) {
+                project.setName(updatedProjectDTO.getName());
             }
 
-            if (updatedProject.getDescription() != null) {
-                project.setDescription(updatedProject.getDescription());
+            if (updatedProjectDTO.getDescription() != null) {
+                project.setDescription(updatedProjectDTO.getDescription());
             }
 
-            if (updatedProject.getDeadline() != null) {
-                project.setDeadline(updatedProject.getDeadline());
+            if (updatedProjectDTO.getDeadline() != null) {
+                project.setDeadline(updatedProjectDTO.getDeadline());
             }
 
             // Status is a primitive boolean, so we always update it
-            project.setStatus(updatedProject.isStatus());
+            project.setStatus(updatedProjectDTO.isStatus());
 
+            return Optional.of(ProjectDTO.fromEntity(project));
         }
-        return existingProject;
+        return Optional.empty();
     }
 
     // Delete
