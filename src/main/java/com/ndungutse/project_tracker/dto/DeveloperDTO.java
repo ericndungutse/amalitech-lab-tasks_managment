@@ -24,7 +24,8 @@ public class DeveloperDTO {
             String name,
             String email,
             String skills,
-            List<Long> taskIds) {
+            List<Long> taskIds
+    ) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -32,18 +33,21 @@ public class DeveloperDTO {
         this.taskIds = taskIds;
     }
 
-    // Constructor without ID (for creating new developers)
+    // Constructor without task ids
     public DeveloperDTO(
+            Long id,
             String name,
             String email,
-            String skills) {
+            String skills
+    ) {
+        this.id = id;
         this.name = name;
         this.email = email;
         this.skills = skills;
         this.taskIds = new ArrayList<>();
     }
 
-    // Constructor from Developer entity
+    // Constructor from Developer entity with tasks ids loaded
     public DeveloperDTO(Developer developer) {
         this.id = developer.getId();
         this.name = developer.getName();
@@ -56,7 +60,7 @@ public class DeveloperDTO {
 
     // Convert Entity to DTO
     public static DeveloperDTO fromEntity(Developer developer) {
-        return new DeveloperDTO(developer);
+        return new DeveloperDTO(developer.getId(), developer.getName(), developer.getEmail(), developer.getSkills());
     }
 
     // Convert DTO to Entity

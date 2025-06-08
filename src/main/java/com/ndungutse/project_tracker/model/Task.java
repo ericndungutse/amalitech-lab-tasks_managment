@@ -23,6 +23,9 @@ public class Task {
     @JoinColumn(name = "developer_id")
     private Developer developer;
 
+    @Column(name = "developer_id", insertable = false, updatable = false)
+    private Long developerId;
+
     public Task() {
     }
 
@@ -55,6 +58,14 @@ public class Task {
         this.dueDate = dueDate;
         this.project = project;
         this.developer = developer;
+    }
+
+    public Long getDeveloperId() {
+        return developerId;
+    }
+
+    public void setDeveloperId(Long developerId) {
+        this.developerId = developerId;
     }
 
     // Getters and Setters
@@ -113,4 +124,6 @@ public class Task {
     public void setDeveloper(Developer developer) {
         this.developer = developer;
     }
+
+
 }

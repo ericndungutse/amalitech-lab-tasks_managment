@@ -65,7 +65,9 @@ public class TaskService {
     public List<TaskDTO> getAll() {
         List<Task> tasks = taskRepository.findAll();
         return tasks.stream()
-                .map(TaskDTO::fromEntity).collect(Collectors.toList());
+                .map((task) -> {
+                    return new TaskDTO(task.getId(), task.getTitle(), task.getDescription(), task.isStatus(), task.getDueDate(), task.getDeveloperId(), task.getProject().getId());
+                }).collect(Collectors.toList());
     }
 
     public Optional<TaskDTO> getById(Long id) {
