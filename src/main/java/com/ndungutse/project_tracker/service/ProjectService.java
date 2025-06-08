@@ -16,16 +16,26 @@ import java.util.stream.Collectors;
 @Service
 public class ProjectService {
     private final ProjectRepository projectRepository;
+    private final AuditService auditService;
 
-    public ProjectService(ProjectRepository projectRepository) {
+    public ProjectService(
+            ProjectRepository projectRepository,
+            AuditService auditService
+    ) {
         this.projectRepository = projectRepository;
+        this.auditService = auditService;
     }
 
     // Create
     public ProjectDTO create(ProjectDTO projectDTO) {
         Project project = projectDTO.toEntity();
         Project savedProject = projectRepository.save(project);
-        return ProjectDTO.fromEntity(savedProject);
+        ProjectDTO savedProjectDTO = ProjectDTO.fromEntity(savedProject);
+
+        // Log the create action
+        auditService.logCreateAction("Project", savedProject.getId(), "dummy_user", savedProjectDTO);
+
+        return savedProjectDTO;
     }
 
     // Read
@@ -37,7 +47,10 @@ public class ProjectService {
     }
 
     // Read with pagination
-    public Page<ProjectDTO> getAll(int page, int size) {
+    public Page<ProjectDTO> getAll(
+            int page,
+            int size
+    ) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Project> projectPage = projectRepository.findAll(pageable);
         return projectPage.map(ProjectDTO::fromEntity);
@@ -49,7 +62,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public Optional<ProjectDTO> update(
+    public ProjectDTO update(
             Long id,
             ProjectDTO updatedProjectDTO
     ) {
@@ -73,17 +86,32 @@ public class ProjectService {
             // Status is a primitive boolean, so we always update it
             project.setStatus(updatedProjectDTO.isStatus());
 
-            return Optional.of(ProjectDTO.fromEntity(project));
+            ProjectDTO updatedDTO = ProjectDTO.fromEntity(project);
+
+            // Log the update action
+            auditService.logUpdateAction("Project", id, "dummy_user", updatedDTO);
+
+            return updatedDTO;
         }
-        return Optional.empty();
+        return null;
     }
 
     // Delete
     public void delete(Long id) {
-        projectRepository.deleteById(id);
+        // Get the project before deleting it to log its data
+        Optional<Project> projectOpt = projectRepository.findById(id);
+        if (projectOpt.isPresent()) {
+            ProjectDTO projectDTO = ProjectDTO.fromEntity(projectOpt.get());
+            projectRepository.deleteById(id);
+
+            // Log the delete action
+            auditService.logDeleteAction("Project", id, "dummy_user", projectDTO);
+        } else {
+            projectRepository.deleteById(id);
+        }
     }
 
     public boolean exists(Long id) {
-        return projectRepository.existsById(id);
+        return !projectRepository.existsById(id);
     }
 }
