@@ -15,21 +15,46 @@ public class Task {
     private boolean status;
     private LocalDate dueDate;
 
-    // Default constructor
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
+    private Project project;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "developer_id")
+    private Developer developer;
+
     public Task() {
     }
 
-    // Constructor with parameters
     public Task(
             String title,
             String description,
             boolean status,
-            LocalDate dueDate
+            LocalDate dueDate,
+            Project project
     ) {
         this.title = title;
         this.description = description;
         this.status = status;
         this.dueDate = dueDate;
+        this.project = project;
+    }
+
+    // Constructor with all parameters including optional developer
+    public Task(
+            String title,
+            String description,
+            boolean status,
+            LocalDate dueDate,
+            Project project,
+            Developer developer
+    ) {
+        this.title = title;
+        this.description = description;
+        this.status = status;
+        this.dueDate = dueDate;
+        this.project = project;
+        this.developer = developer;
     }
 
     // Getters and Setters
@@ -71,5 +96,21 @@ public class Task {
 
     public void setDueDate(LocalDate dueDate) {
         this.dueDate = dueDate;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
+    }
+
+    public Developer getDeveloper() {
+        return developer;
+    }
+
+    public void setDeveloper(Developer developer) {
+        this.developer = developer;
     }
 }
