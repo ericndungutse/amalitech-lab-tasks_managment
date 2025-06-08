@@ -73,11 +73,13 @@ public class Developer {
     }
 
     public void addTask(Task task) {
+        // Maintain consistency in the current session.
         tasks.add(task);
         task.setDeveloper(this);
     }
 
     public void removeTask(Task task) {
+        // Maintain consistency in the current session.
         tasks.remove(task);
         task.setDeveloper(null);
     }

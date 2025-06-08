@@ -15,6 +15,7 @@ public class TaskDTO {
     private Long projectId;
     private Long developerId;
     private ProjectDTO projectDTO;
+    private DeveloperDTO developerDTO;
 
     // Default constructor
     public TaskDTO() {
@@ -28,7 +29,8 @@ public class TaskDTO {
             boolean status,
             LocalDate dueDate,
             Long projectId,
-            Long developerId) {
+            Long developerId
+    ) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -45,7 +47,8 @@ public class TaskDTO {
             boolean status,
             LocalDate dueDate,
             Long projectId,
-            Long developerId) {
+            Long developerId
+    ) {
         this.title = title;
         this.description = description;
         this.status = status;
@@ -59,6 +62,7 @@ public class TaskDTO {
         TaskDTO dto = new TaskDTO();
         dto.setId(task.getId());
         dto.setTitle(task.getTitle());
+        dto.setDeveloperId(task.getDeveloper().getId());
         dto.setDescription(task.getDescription());
         dto.setStatus(task.isStatus());
         dto.setDueDate(task.getDueDate());
@@ -69,16 +73,16 @@ public class TaskDTO {
         }
 
         if (task.getDeveloper() != null) {
-            dto.setDeveloperId(task.getDeveloper().getId());
+            dto.setDeveloperDTO(DeveloperDTO.fromEntity(task.getDeveloper()));
         }
-
         return dto;
     }
 
     // Convert DTO to Entity
     public Task toEntity(
             Project project,
-            Developer developer) {
+            Developer developer
+    ) {
         return new Task(
                 this.title,
                 this.description,
@@ -149,4 +153,15 @@ public class TaskDTO {
         return projectDTO;
     }
 
+    public void setProjectDTO(ProjectDTO projectDTO) {
+        this.projectDTO = projectDTO;
+    }
+
+    public DeveloperDTO getDeveloperDTO() {
+        return developerDTO;
+    }
+
+    public void setDeveloperDTO(DeveloperDTO developerDTO) {
+        this.developerDTO = developerDTO;
+    }
 }
