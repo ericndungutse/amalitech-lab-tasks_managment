@@ -6,8 +6,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.DynamicUpdate;
+
 @Entity
 @Table(name = "projects")
+@DynamicUpdate
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -29,8 +32,7 @@ public class Project {
             String name,
             String description,
             LocalDate deadline,
-            boolean status
-    ) {
+            boolean status) {
         this.name = name;
         this.description = description;
         this.deadline = deadline;
@@ -85,7 +87,7 @@ public class Project {
     public void setTasks(List<Task> tasks) {
         this.tasks = tasks;
     }
-    
+
     public void addTask(Task task) {
         tasks.add(task);
         task.setProject(this);

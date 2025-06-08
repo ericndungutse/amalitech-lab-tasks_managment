@@ -3,6 +3,7 @@ target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+*.json
 
 ### STS ###
 .apt_generated
@@ -19,6 +20,7 @@ target/
 *.iml
 *.ipr
 src/main/resources/application.properties
+C:\Users\davnd\OneDrive\Desktop\Course 2\java codes\project_tracker\src\main\resources\test
 
 ### NetBeans ###
 /nbproject/private/
