@@ -1,20 +1,19 @@
 package com.ndungutse.project_tracker.service;
 
-import com.ndungutse.project_tracker.model.Project;
-import com.ndungutse.project_tracker.repository.ProjectRepository;
-import org.hibernate.annotations.DynamicUpdate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.stereotype.Service;
+
+import com.ndungutse.project_tracker.model.Project;
+import com.ndungutse.project_tracker.repository.ProjectRepository;
+
+import jakarta.transaction.Transactional;
+
 @Service
-@DynamicUpdate
 public class ProjectService {
     private final ProjectRepository projectRepository;
 
-    @Autowired
     public ProjectService(ProjectRepository projectRepository) {
         this.projectRepository = projectRepository;
     }
@@ -33,20 +32,32 @@ public class ProjectService {
         return projectRepository.findById(id);
     }
 
-    public Project update(
+    @Transactional
+    public Optional<Project> update(
             Long id,
-            Project updatedProject
-    ) {
+            Project updatedProject) {
         Optional<Project> existingProject = projectRepository.findById(id);
         if (existingProject.isPresent()) {
             Project project = existingProject.get();
-            project.setName(updatedProject.getName());
-            project.setDescription(updatedProject.getDescription());
-            project.setDeadline(updatedProject.getDeadline());
+
+            // Only update fields that are not null to leverage @DynamicUpdate
+            if (updatedProject.getName() != null) {
+                project.setName(updatedProject.getName());
+            }
+
+            if (updatedProject.getDescription() != null) {
+                project.setDescription(updatedProject.getDescription());
+            }
+
+            if (updatedProject.getDeadline() != null) {
+                project.setDeadline(updatedProject.getDeadline());
+            }
+
+            // Status is a primitive boolean, so we always update it
             project.setStatus(updatedProject.isStatus());
-            return projectRepository.save(project);
+
         }
-        return null;
+        return existingProject;
     }
 
     // Delete
