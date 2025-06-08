@@ -1,7 +1,9 @@
 package com.ndungutse.project_tracker.service;
 
+import com.ndungutse.project_tracker.dto.DeveloperDTO;
 import com.ndungutse.project_tracker.dto.ProjectDTO;
 import com.ndungutse.project_tracker.dto.TaskDTO;
+import com.ndungutse.project_tracker.model.Developer;
 import com.ndungutse.project_tracker.model.Project;
 import com.ndungutse.project_tracker.model.Task;
 import com.ndungutse.project_tracker.repository.TaskRepository;
@@ -16,12 +18,16 @@ import java.util.stream.Collectors;
 public class TaskService {
     private final TaskRepository taskRepository;
     private final ProjectService projectService;
+    private final DeveloperService developerService;
 
     public TaskService(
             TaskRepository taskRepository,
-            ProjectService projectService) {
+            ProjectService projectService,
+            DeveloperService developerService
+    ) {
         this.taskRepository = taskRepository;
         this.projectService = projectService;
+        this.developerService = developerService;
     }
 
     // Create
@@ -40,8 +46,16 @@ public class TaskService {
             return Optional.empty();
         }
 
+        // Get the developer entity if provided
+        Developer developer = null;
+        if (taskDTO.getDeveloperId() != null && developerService.exists(taskDTO.getDeveloperId())) {
+            developer = developerService.getById(taskDTO.getDeveloperId())
+                    .map(DeveloperDTO::toEntity)
+                    .orElse(null);
+        }
+
         // Create and save the task
-        Task task = taskDTO.toEntity(project.get(), null);
+        Task task = taskDTO.toEntity(project.get(), developer);
         Task savedTask = taskRepository.save(task);
 
         return Optional.of(TaskDTO.fromEntity(savedTask));
@@ -63,7 +77,8 @@ public class TaskService {
     @Transactional
     public Optional<TaskDTO> update(
             Long id,
-            TaskDTO updatedTaskDTO) {
+            TaskDTO updatedTaskDTO
+    ) {
         Optional<Task> existingTaskOpt = taskRepository.findById(id);
 
         if (existingTaskOpt.isEmpty()) {
@@ -93,12 +108,20 @@ public class TaskService {
                 projectService.exists(updatedTaskDTO.getProjectId())) {
 
             Optional<Project> projectOpt = projectService.getById(updatedTaskDTO.getProjectId())
-                    .map(ProjectDTO -> ProjectDTO.toEntity());
+                    .map(ProjectDTO::toEntity);
 
             projectOpt.ifPresent(existingTask::setProject);
         }
 
-        // We would update developer here if DeveloperService was implemented
+        // Update developer if provided and exists
+        if (updatedTaskDTO.getDeveloperId() != null &&
+                developerService.exists(updatedTaskDTO.getDeveloperId())) {
+
+            Optional<Developer> developerOpt = developerService.getById(updatedTaskDTO.getDeveloperId())
+                    .map(DeveloperDTO::toEntity);
+
+            developerOpt.ifPresent(existingTask::setDeveloper);
+        }
 
         Task updatedTask = taskRepository.save(existingTask);
         return Optional.of(TaskDTO.fromEntity(updatedTask));
