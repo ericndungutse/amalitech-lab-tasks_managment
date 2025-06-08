@@ -33,7 +33,8 @@ public class ProjectController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        Page<ProjectDTO> projects = projectService.getAll(page - 1, size);
+        int pageToGet = page == 0 ? page : page - 1;
+        Page<ProjectDTO> projects = projectService.getAll(pageToGet, size);
         PageResponse<ProjectDTO> response = new PageResponse<>(projects);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -48,7 +49,7 @@ public class ProjectController {
 
     // Update a project
     @PatchMapping("/{id}")
-    public ResponseEntity<Optional<ProjectDTO>> updateProject(
+    public ResponseEntity<ProjectDTO> updateProject(
             @PathVariable Long id,
             @RequestBody ProjectDTO projectDTO
     ) {
@@ -56,7 +57,7 @@ public class ProjectController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        Optional<ProjectDTO> updatedProject = projectService.update(id, projectDTO);
+        ProjectDTO updatedProject = projectService.update(id, projectDTO);
         return new ResponseEntity<>(updatedProject, HttpStatus.OK);
     }
 
