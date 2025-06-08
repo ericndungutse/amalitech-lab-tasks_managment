@@ -2,6 +2,7 @@ package com.ndungutse.project_tracker.controller;
 
 import com.ndungutse.project_tracker.dto.ProjectDTO;
 import com.ndungutse.project_tracker.service.ProjectService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,10 +27,12 @@ public class ProjectController {
         return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
     }
 
-    // Get all projects
+    // Get all projects with pagination
     @GetMapping
-    public ResponseEntity<List<ProjectDTO>> getAllProjects() {
-        List<ProjectDTO> projects = projectService.getAll();
+    public ResponseEntity<Page<ProjectDTO>> getAllProjects(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<ProjectDTO> projects = projectService.getAll(page, size);
         return new ResponseEntity<>(projects, HttpStatus.OK);
     }
 

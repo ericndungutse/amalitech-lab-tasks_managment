@@ -4,6 +4,9 @@ import com.ndungutse.project_tracker.dto.ProjectDTO;
 import com.ndungutse.project_tracker.model.Project;
 import com.ndungutse.project_tracker.repository.ProjectRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,6 +34,13 @@ public class ProjectService {
         return projects.stream()
                 .map(ProjectDTO::fromEntity)
                 .collect(Collectors.toList());
+    }
+
+    // Read with pagination
+    public Page<ProjectDTO> getAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Project> projectPage = projectRepository.findAll(pageable);
+        return projectPage.map(ProjectDTO::fromEntity);
     }
 
     public Optional<ProjectDTO> getById(Long id) {
