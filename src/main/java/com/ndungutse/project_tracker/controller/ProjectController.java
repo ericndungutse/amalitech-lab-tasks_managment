@@ -1,5 +1,6 @@
 package com.ndungutse.project_tracker.controller;
 
+import com.ndungutse.project_tracker.dto.PageResponse;
 import com.ndungutse.project_tracker.dto.ProjectDTO;
 import com.ndungutse.project_tracker.service.ProjectService;
 import org.springframework.data.domain.Page;
@@ -7,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -29,11 +29,13 @@ public class ProjectController {
 
     // Get all projects with pagination
     @GetMapping
-    public ResponseEntity<Page<ProjectDTO>> getAllProjects(
+    public ResponseEntity<PageResponse<ProjectDTO>> getAllProjects(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Page<ProjectDTO> projects = projectService.getAll(page, size);
-        return new ResponseEntity<>(projects, HttpStatus.OK);
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<ProjectDTO> projects = projectService.getAll(page - 1, size);
+        PageResponse<ProjectDTO> response = new PageResponse<>(projects);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     // Get a project by ID
